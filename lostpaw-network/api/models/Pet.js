@@ -1,42 +1,15 @@
-/**
- * Pet.js
- *
- * @description :: A model definition represents a database table/collection.
- * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
- */
-
 module.exports = {
-
   attributes: {
-
-    //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
-    //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
-    //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-
-    name: { type: 'string' },
-
-    species: { type: 'string' },
-
-    breed: { type: 'string' },
-
-    color: { type: 'string' },
-
-    age: { type: 'number' },
-
-    photoURL: { type: 'string' },
-
-    userId: { type: 'integer' }
-
-    //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
-    //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
-    //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-
-
-    //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
-    //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
-    //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
-  },
-
+    petId: { type: 'string', required: true, unique: true, columnName: '_id' },
+    name: { type: 'string', required: true },
+    species: { type: 'string', required: true },
+    breed: { type: 'string', required: true },
+    color: { type: 'string', required: true },
+    age: { type: 'number', required: true },
+    photoURL: { type: 'string', allowNull: true },
+    userId: {
+      model: 'user',
+      required: true
+    }
+  }
 };
-
