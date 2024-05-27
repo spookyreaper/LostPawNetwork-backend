@@ -1,5 +1,5 @@
 /**
- * Pet.js
+ * Message.js
  *
  * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
@@ -13,19 +13,13 @@ module.exports = {
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
 
-    name: { type: 'string' },
+    senderUserId: { type: 'integer' },
 
-    species: { type: 'string' },
+    receiverUserId: { type: 'integer' },
 
-    breed: { type: 'string' },
+    content: { type: 'string' },
 
-    color: { type: 'string' },
-
-    age: { type: 'number' },
-
-    photoURL: { type: 'string' },
-
-    userId: { type: 'integer' }
+    timestamp: { type: 'date' }
 
     //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
     //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
