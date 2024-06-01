@@ -1,29 +1,19 @@
-/**
- * Built-in Log Configuration
- * (sails.config.log)
- *
- * Configure the log level for your app, as well as the transport
- * (Underneath the covers, Sails uses Winston for logging, which
- * allows for some pretty neat custom transports/adapters for log messages)
- *
- * For more information on the Sails logger, check out:
- * https://sailsjs.com/docs/concepts/logging
- */
-
+// config/log.js
 module.exports.log = {
+  // Environment-specific logging levels
+  level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
 
-  /***************************************************************************
-  *                                                                          *
-  * Valid `level` configs: i.e. the minimum log level to capture with        *
-  * sails.log.*()                                                            *
-  *                                                                          *
-  * The order of precedence for log levels from lowest to highest is:        *
-  * silly, verbose, info, debug, warn, error                                 *
-  *                                                                          *
-  * You may also set the level to "silent" to suppress all logs.             *
-  *                                                                          *
-  ***************************************************************************/
+  // Use custom transports in production for better performance
+  custom: process.env.NODE_ENV === 'production' ? {
+    transports: [
+      new (require('winston').transports.File)({
+        level: 'warn',
+        filename: 'logs/error.log',
+        maxsize: 1024 * 1024 * 10 // 10MB
+      })
+    ]
+  } : undefined,
 
-  // level: 'info'
-
+  // Setup for console logging in development
+  inspect: process.env.NODE_ENV !== 'production'
 };

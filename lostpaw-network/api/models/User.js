@@ -1,27 +1,56 @@
+const bcrypt = require('bcrypt');
+
 module.exports = {
   attributes: {
-    userId: { type: 'string', required: true, unique: true, columnName: '_id' },
-    username: { type: 'string', required: true },
-    email: { type: 'string', required: true, isEmail: true },
-    password: { type: 'string', required: true },
-    contactInfo: { type: 'string', allowNull: true },
-    accountCreated: { type: 'ref', columnType: 'datetime', required: true },
-    // Relationships
-    pets: {
-      collection: 'pet',
-      via: 'userId'
+    // Basic user attributes
+    username: {
+      type: 'string',
+      required: true,
+      unique: true,
+      maxLength: 150
     },
-    reports: {
-      collection: 'report',
-      via: 'userId'
+    email: {
+      type: 'string',
+      required: true,
+      unique: true,
+      isEmail: true // Ensures the email is valid
     },
-    messagesSent: {
-      collection: 'message',
-      via: 'senderUserId'
+    password: {
+      type: 'string',
+      required: true
     },
-    messagesReceived: {
-      collection: 'message',
-      via: 'receiverUserId'
+    contactInfo: {
+      type: 'string',
+      allowNull: true
+    },
+    accountCreated: {
+      type: 'ref',
+      columnType: 'datetime',
+      autoCreatedAt: true
+    },
+
+    // Model methods
+    toJSON: function() {
+      var obj = this.toObject();
+      delete obj.password; // Remove password from API responses
+      return obj;
     }
+  },
+
+  // Lifecycle Callbacks
+  beforeCreate: async function (user, proceed) {
+    if (user.password) {
+      const saltRounds = 10; // The cost of processing the data through bcrypt
+      user.password = await bcrypt.hash(user.password, saltRounds);
+    }
+    return proceed();
+  },
+
+  beforeUpdate: async function (user, proceed) {
+    if (user.password) {
+      const saltRounds = 10;
+      user.password = await bcrypt.hash(user.password, saltRounds);
+    }
+    return proceed();
   }
 };

@@ -1,54 +1,36 @@
-/**
- * Security Settings
- * (sails.config.security)
- *
- * These settings affect aspects of your app's security, such
- * as how it deals with cross-origin requests (CORS) and which
- * routes require a CSRF token to be included with the request.
- *
- * For an overview of how Sails handles security, see:
- * https://sailsjs.com/documentation/concepts/security
- *
- * For additional options and more information, see:
- * https://sailsjs.com/config/security
- */
-
+// config/security.js
 module.exports.security = {
+  // CORS (Cross-Origin Resource Sharing) settings
+  cors: {
+    allRoutes: true,                        // Apply CORS to all incoming requests
+    allowOrigins: ['https://example.com'],  // Specify allowed origins for security
+    allowCredentials: false,                // If credentials are needed, set to true
+    allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD', // Allowed HTTP methods
+    allowRequestHeaders: 'content-type, Authorization', // Allowed headers
+    exposeHeaders: '' // Headers that should be accessible to the browser, add if needed
+  },
 
-  /***************************************************************************
-  *                                                                          *
-  * CORS is like a more modern version of JSONP-- it allows your application *
-  * to circumvent browsers' same-origin policy, so that the responses from   *
-  * your Sails app hosted on one domain (e.g. example.com) can be received   *
-  * in the client-side JavaScript code from a page you trust hosted on _some *
-  * other_ domain (e.g. trustedsite.net).                                    *
-  *                                                                          *
-  * For additional options and more information, see:                        *
-  * https://sailsjs.com/docs/concepts/security/cors                          *
-  *                                                                          *
-  ***************************************************************************/
+  // CSRF (Cross-Site Request Forgery) protection
+  csrf: false, // Set to true if your application uses session cookies for authentication
 
-  // cors: {
-  //   allRoutes: false,
-  //   allowOrigins: '*',
-  //   allowCredentials: false,
-  // },
+  // HTTP Strict Transport Security (HSTS) settings to force HTTPS on all requests
+  hsts: {
+    maxAge: 365 * 24 * 60 * 60, // One year in seconds
+    includeSubDomains: true,    // Apply HSTS to all subdomains
+    preload: true               // Opt-in to preload list for browsers (consider implications)
+  },
 
-
-  /****************************************************************************
-  *                                                                           *
-  * By default, Sails' built-in CSRF protection is disabled to facilitate     *
-  * rapid development.  But be warned!  If your Sails app will be accessed by *
-  * web browsers, you should _always_ enable CSRF protection before deploying *
-  * to production.                                                            *
-  *                                                                           *
-  * To enable CSRF protection, set this to `true`.                            *
-  *                                                                           *
-  * For more information, see:                                                *
-  * https://sailsjs.com/docs/concepts/security/csrf                           *
-  *                                                                           *
-  ****************************************************************************/
-
-  // csrf: false
-
+  // Content Security Policy (CSP) - Define content sources which are allowed to be loaded
+  csp: {
+    useDefaults: true, // Use default CSP directives (good starting point)
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://trusted.cdn.com"],
+      styleSrc: ["'self'", "https://trusted.cdn.com", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https://trusted.cdn.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "wss://yourapp.com", "https://api.yourapp.com"],
+      reportUri: '/report-violation', // Endpoint where CSP violation reports are POSTed
+    }
+  }
 };
