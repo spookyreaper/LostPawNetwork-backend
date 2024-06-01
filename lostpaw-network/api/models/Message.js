@@ -1,36 +1,20 @@
-/**
- * Message.js
- *
- * @description :: A model definition represents a database table/collection.
- * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
- */
-
+// api/models/Message.js
 module.exports = {
-
   attributes: {
-
-    //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
-    //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
-    //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
-
-    senderUserId: { type: 'integer' },
-
-    receiverUserId: { type: 'integer' },
-
-    content: { type: 'string' },
-
-    timestamp: { type: 'date' }
-
-    //  ╔═╗╔╦╗╔╗ ╔═╗╔╦╗╔═╗
-    //  ║╣ ║║║╠╩╗║╣  ║║╚═╗
-    //  ╚═╝╩ ╩╚═╝╚═╝═╩╝╚═╝
-
-
-    //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
-    //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
-    //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
+    id: {
+      type: 'string',
+      columnName: '_id',
+      unique: true,
+      required: true
+    },
+    // Define other attributes of your message model here
+    content: {
+      type: 'string',
+      required: true
+    },
+    // Add other necessary fields as per your application needs
   },
 
+  primaryKey: 'id', // Indicate 'id' as the primary key at the top level
+  dontUseObjectIds: true // Optional, set to true if you are not using MongoDB's ObjectId
 };
-

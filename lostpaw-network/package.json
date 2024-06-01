@@ -12,6 +12,7 @@
     "dotenv": "^16.4.5",
     "grunt": "1.0.4",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "sails": "^1.5.11",
     "sails-hook-grunt": "^5.0.0",
     "sails-hook-orm": "^4.0.3",

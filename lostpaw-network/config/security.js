@@ -1,13 +1,12 @@
 // config/security.js
 module.exports.security = {
-  // CORS (Cross-Origin Resource Sharing) settings
   cors: {
-    allRoutes: true,                        // Apply CORS to all incoming requests
-    allowOrigins: ['https://example.com'],  // Specify allowed origins for security
-    allowCredentials: false,                // If credentials are needed, set to true
-    allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD', // Allowed HTTP methods
-    allowRequestHeaders: 'content-type, Authorization', // Allowed headers
-    exposeHeaders: '' // Headers that should be accessible to the browser, add if needed
+    allRoutes: true,
+    allowOrigins: '*',
+    allowCredentials: false,
+    allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
+    allowRequestHeaders: 'content-type, Authorization',
+    allowResponseHeaders: 'content-type, Authorization' // Updated from exposeHeaders
   },
 
   // CSRF (Cross-Site Request Forgery) protection

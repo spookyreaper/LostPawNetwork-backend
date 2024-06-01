@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
+const _ = require('lodash');
 
 module.exports = {
   attributes: {
-    // Basic user attributes
     username: {
       type: 'string',
       required: true,
@@ -13,7 +13,7 @@ module.exports = {
       type: 'string',
       required: true,
       unique: true,
-      isEmail: true // Ensures the email is valid
+      isEmail: true
     },
     password: {
       type: 'string',
@@ -28,19 +28,15 @@ module.exports = {
       columnType: 'datetime',
       autoCreatedAt: true
     },
-
-    // Model methods
-    toJSON: function() {
-      var obj = this.toObject();
-      delete obj.password; // Remove password from API responses
-      return obj;
-    }
   },
 
-  // Lifecycle Callbacks
+  customToJSON: function() {
+    return _.omit(this, ['password']);
+  },
+
   beforeCreate: async function (user, proceed) {
     if (user.password) {
-      const saltRounds = 10; // The cost of processing the data through bcrypt
+      const saltRounds = 10;
       user.password = await bcrypt.hash(user.password, saltRounds);
     }
     return proceed();
