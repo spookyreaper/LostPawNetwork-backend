@@ -4,15 +4,19 @@ const jwt = require('jsonwebtoken');
 module.exports = {
   // Register a new user
   register: async function(req, res) {
+    console.log("Registering new user with email:", req.body.email); // Log email to confirm input data
     try {
+      console.log("Hashing password..."); // Log before hashing the password
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      const newUser = await User.create({ ...req.body, password: hashedPassword }).fetch();
-      return res.status(201).json({ message: 'User registered successfully', user: newUser });
+      console.log("Creating user in database..."); // Log before creating the user
+      const newUser = await User.create({...req.body, password: hashedPassword}).fetch();
+      console.log("User created successfully:", newUser); // Log the new user object
+      return res.status(201).json({message: 'User registered successfully', user: newUser});
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Error during registration:", err); // Log any errors that occur
+      return res.status(500).json({error: err.message});
     }
   },
-
   // User login
   login: async function(req, res) {
     try {

@@ -3,6 +3,11 @@ const _ = require('lodash');
 
 module.exports = {
   attributes: {
+    _id: {
+      type: 'string',
+      columnName: '_id',
+      unique: true,
+    },
     username: {
       type: 'string',
       required: true,
@@ -27,26 +32,34 @@ module.exports = {
       type: 'ref',
       columnType: 'datetime',
       autoCreatedAt: true
-    },
+    }
   },
 
   customToJSON: function() {
     return _.omit(this, ['password']);
   },
 
-  beforeCreate: async function (user, proceed) {
+  beforeCreate: function (user, proceed) {
     if (user.password) {
-      const saltRounds = 10;
-      user.password = await bcrypt.hash(user.password, saltRounds);
+      bcrypt.hash(user.password, 10, (err, hash) => {
+        if (err) return proceed(err);
+        user.password = hash;
+        return proceed();
+      });
+    } else {
+      return proceed();
     }
-    return proceed();
   },
 
-  beforeUpdate: async function (user, proceed) {
+  beforeUpdate: function (user, proceed) {
     if (user.password) {
-      const saltRounds = 10;
-      user.password = await bcrypt.hash(user.password, saltRounds);
+      bcrypt.hash(user.password, 10, (err, hash) => {
+        if (err) return proceed(err);
+        user.password = hash;
+        return proceed();
+      });
+    } else {
+      return proceed();
     }
-    return proceed();
   }
 };
