@@ -1,11 +1,13 @@
-// config/policies.js
 module.exports.policies = {
   '*': 'isLoggedIn',  // Default policy for all controllers
 
   UserController: {
-    'create': true,  // Allow anyone to register
+    'register': true,  // Allow anyone to register
     'login': true,   // Allow public login
-    'logout': 'isLoggedIn'  // Only logged-in users can log out
+    'logout': 'isLoggedIn',  // Only logged-in users can log out
+    'findOne': 'isLoggedIn',  // Only logged-in users can view their profile
+    'update': 'isLoggedIn',  // Only logged-in users can update their profile
+    'destroy': 'isLoggedIn'  // Only logged-in users can delete their profile
   },
 
   ReportController: {

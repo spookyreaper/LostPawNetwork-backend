@@ -15,19 +15,32 @@ module.exports = {
 
   // User login
   login: async function(req, res) {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
 
-    const match = await sails.helpers.passwords.checkPassword(req.body.password, user.password);
-    if (!match) {
-      return res.status(401).json({ error: 'Password is incorrect' });
-    }
+      const match = await bcrypt.compare(req.body.password, user.password);
+      if (!match) {
+        return res.status(401).json({ error: 'Password is incorrect' });
+      }
 
-    // Set user id in session
-    req.session.userId = user.id;
-    return res.ok({ message: 'Login successful', user: user });
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      return res.json({ message: 'Login successful', token });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
+  // User logout
+  logout: async function(req, res) {
+    try {
+      req.session.userId = null;
+      return res.json({ message: 'Logout successful' });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   },
 
   // Retrieve a specific user by ID
