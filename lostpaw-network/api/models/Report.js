@@ -1,3 +1,4 @@
+// api/models/Report.js
 module.exports = {
   attributes: {
     _id: {
@@ -37,6 +38,9 @@ module.exports = {
     },
     user: {
       model: 'user'
+    },
+    pet: {
+      model: 'pet'
     },
     status: {
       type: 'string',

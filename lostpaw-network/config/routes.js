@@ -14,7 +14,7 @@ module.exports.routes = {
   'PUT /user/:id': { controller: 'UserController', action: 'update', policy: 'isLoggedIn' },
   'DELETE /user/:id': { controller: 'UserController', action: 'destroy', policy: 'isLoggedIn' },
 
-  // Pet routes 
+  // Pet routes
   'POST /pet': { controller: 'PetController', action: 'create', policy: 'isLoggedIn' },
   'GET /pet/:id': { controller: 'PetController', action: 'findOne', policy: 'isLoggedIn' },
   'PUT /pet/:id': { controller: 'PetController', action: 'update', policy: 'isLoggedIn' },

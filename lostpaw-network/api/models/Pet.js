@@ -1,5 +1,5 @@
 module.exports = {
-  primaryKey: 'id',  // Set the primary key for the model here
+  primaryKey: 'id',
 
   attributes: {
     id: {
