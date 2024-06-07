@@ -34,35 +34,24 @@ module.exports = {
   },
 
   login: async function(req, res) {
-    console.log('Login endpoint hit with data:', req.body);
     try {
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        console.log('User not found:', req.body.email);
         return res.status(404).json({ message: 'User not found' });
       }
-
-      console.log('User found:', user);
+  
       const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
-      console.log('Password validation result:', passwordIsValid);
-
       if (!passwordIsValid) {
         return res.status(401).json({ message: 'Invalid password' });
       }
-
-      console.log('Signing JWT with base64 secret:', process.env.JWT_SECRET_BASE64);
-      const token = jwt.sign({ userId: user.id }, Buffer.from(process.env.JWT_SECRET_BASE64, 'base64'), { algorithm: 'HS256', expiresIn: '24h' });
-      console.log('Issued Token:', token);
-
-      // Set user session
-      req.session.user = { id: user.id };
-
+  
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
       return res.status(200).json({ message: 'Login successful', token });
     } catch (err) {
-      console.error('Error in login:', err);
       return res.status(500).json({ message: 'Error logging in', error: err });
     }
   },
+  
 
   logout: async function(req, res) {
     try {

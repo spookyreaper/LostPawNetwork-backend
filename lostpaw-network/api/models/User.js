@@ -36,29 +36,5 @@ module.exports = {
 
   customToJSON: function() {
     return _.omit(this, ['password']);
-  },
-
-  beforeCreate: function (user, proceed) {
-    if (user.password) {
-      bcrypt.hash(user.password, 10, (err, hash) => {
-        if (err) return proceed(err);
-        user.password = hash;
-        return proceed();
-      });
-    } else {
-      return proceed();
-    }
-  },
-
-  beforeUpdate: function (user, proceed) {
-    if (user.password) {
-      bcrypt.hash(user.password, 10, (err, hash) => {
-        if (err) return proceed(err);
-        user.password = hash;
-        return proceed();
-      });
-    } else {
-      return proceed();
-    }
   }
 };
