@@ -1,12 +1,11 @@
+// api/models/User.js
 const bcrypt = require('bcrypt');
-const _ = require('lodash');
 
 module.exports = {
   attributes: {
-    _id: {
+    id: {
       type: 'string',
       columnName: '_id',
-      unique: true,
     },
     username: {
       type: 'string',

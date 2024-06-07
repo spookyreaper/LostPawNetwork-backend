@@ -1,25 +1,28 @@
 module.exports.policies = {
-  '*': 'isLoggedIn',  // Default policy for all controllers
+  '*': 'isAuthenticated',  // Apply 'isAuthenticated' policy to all controllers by default
 
   UserController: {
-    'register': true,  // Allow anyone to register
-    'login': true,   // Allow public login
+    'register': true,  // Allow public access to register
+    'login': true,     // Allow public access to login
     'logout': 'isLoggedIn',  // Only logged-in users can log out
-    'findOne': 'isLoggedIn',  // Only logged-in users can view their profile
-    'update': 'isLoggedIn',  // Only logged-in users can update their profile
-    'destroy': 'isLoggedIn'  // Only logged-in users can delete their profile
+    'findOne': 'isAuthenticated',  // Only logged-in users can view their profile
+    'update': 'isAuthenticated',  // Only logged-in users can update their profile
+    'destroy': 'isAuthenticated',  // Only logged-in users can delete their profile
+    'completeProfile': true // Allow public access to complete profile
   },
 
   ReportController: {
-    '*': 'isLoggedIn',
-    'create': 'isLoggedIn',  // Reinforce that creating a report requires login
+    'create': 'isAuthenticated',  // Only logged-in users can create reports
     'find': true,  // Public can view all reports
     'findOne': true  // Public can view specific reports
   },
 
   PetController: {
-    '*': 'isLoggedIn',
-    'find': true,  // Allow public access to view pets
-    'findOne': true  // Allow public access to view a specific pet
+    'create': 'isAuthenticated',  // Only logged-in users can create pets
+    'find': true,  // Public can view all pets
+    'findOne': true,  // Public can view specific pets
+    'update': 'isAuthenticated',  // Only logged-in users can update pets
+    'destroy': 'isAuthenticated',  // Only logged-in users can delete pets
+    'uploadPhoto': 'isAuthenticated' // Only logged-in users can upload pet photos
   }
 };

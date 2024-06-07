@@ -2,52 +2,77 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 module.exports = {
-  // Register a new user
   register: async function(req, res) {
-    console.log("Registering new user with email:", req.body.email); // Log email to confirm input data
+    console.log('Register endpoint hit with data:', req.body);
     try {
-      console.log("Hashing password..."); // Log before hashing the password
+      const existingUser = await User.findOne({
+        or: [
+          { username: req.body.username },
+          { email: req.body.email }
+        ]
+      });
+
+      if (existingUser) {
+        console.log('User already exists with username or email:', existingUser);
+        return res.status(409).json({ message: 'Username or email already exists' });
+      }
+
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      console.log("Creating user in database..."); // Log before creating the user
-      const newUser = await User.create({...req.body, password: hashedPassword}).fetch();
-      console.log("User created successfully:", newUser); // Log the new user object
-      return res.status(201).json({message: 'User registered successfully', user: newUser});
-    } catch (err) {
-      console.error("Error during registration:", err); // Log any errors that occur
-      return res.status(500).json({error: err.message});
-    }
-  },
-  // User login
-  login: async function(req, res) {
-    try {
-      const user = await User.findOne({ email: req.body.email });
-      if (!user) {
-        return res.status(401).json({ error: 'User not found' });
-      }
+      console.log('Hashed password:', hashedPassword);
 
-      const match = await bcrypt.compare(req.body.password, user.password);
-      if (!match) {
-        return res.status(401).json({ error: 'Password is incorrect' });
-      }
+      const newUser = await User.create({ ...req.body, password: hashedPassword }).fetch();
+      console.log('New user created:', newUser);
 
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      return res.json({ message: 'Login successful', token });
+      // Set user session
+      req.session.user = { id: newUser.id };
+
+      return res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (err) {
+      console.error('Error in register:', err);
       return res.status(500).json({ error: err.message });
     }
   },
 
-  // User logout
+  login: async function(req, res) {
+    console.log('Login endpoint hit with data:', req.body);
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        console.log('User not found:', req.body.email);
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      console.log('User found:', user);
+      const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
+      console.log('Password validation result:', passwordIsValid);
+
+      if (!passwordIsValid) {
+        return res.status(401).json({ message: 'Invalid password' });
+      }
+
+      console.log('Signing JWT with base64 secret:', process.env.JWT_SECRET_BASE64);
+      const token = jwt.sign({ userId: user.id }, Buffer.from(process.env.JWT_SECRET_BASE64, 'base64'), { algorithm: 'HS256', expiresIn: '24h' });
+      console.log('Issued Token:', token);
+
+      // Set user session
+      req.session.user = { id: user.id };
+
+      return res.status(200).json({ message: 'Login successful', token });
+    } catch (err) {
+      console.error('Error in login:', err);
+      return res.status(500).json({ message: 'Error logging in', error: err });
+    }
+  },
+
   logout: async function(req, res) {
     try {
-      req.session.userId = null;
+      req.session.user = null;
       return res.json({ message: 'Logout successful' });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   },
 
-  // Retrieve a specific user by ID
   findOne: async function(req, res) {
     try {
       const user = await User.findOne({ id: req.params.id });
@@ -60,10 +85,9 @@ module.exports = {
     }
   },
 
-  // Update user details
   update: async function(req, res) {
     try {
-      const updatedUser = await User.updateOne({ id: req.session.userId }).set(req.body);
+      const updatedUser = await User.updateOne({ id: req.session.user.id }).set(req.body);
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -73,7 +97,6 @@ module.exports = {
     }
   },
 
-  // Delete a user
   destroy: async function(req, res) {
     try {
       const deletedUser = await User.destroyOne({ id: req.params.id });
@@ -85,4 +108,24 @@ module.exports = {
       return res.status(500).json({ error: err.message });
     }
   },
+
+  completeProfile: async function(req, res) {
+    console.log('Complete Profile endpoint hit with data:', req.session);
+    try {
+      const user = await User.updateOne({ id: req.session.user.id }).set({
+        contactInfo: req.body.contactInfo
+      });
+
+      if (!user) {
+        console.log('User not found for complete profile:', req.session.user.id);
+        return res.status(404).json({ message: 'User not found' });
+      }
+      console.log('User profile updated:', user);
+
+      return res.status(200).json({ message: 'Profile updated successfully', user });
+    } catch (err) {
+      console.error('Error in completeProfile:', err);
+      return res.status(500).json({ message: 'Error updating profile', error: err });
+    }
+  }
 };

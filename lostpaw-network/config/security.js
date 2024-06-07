@@ -1,16 +1,15 @@
-// config/security.js
 module.exports.security = {
   cors: {
     allRoutes: true,
-    allowOrigins: '*',
-    allowCredentials: false,
+    allowOrigins: 'http://localhost:5173', // Specify your frontend URL
+    allowCredentials: true, // Allow credentials if using cookies or authentication
     allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
     allowRequestHeaders: 'content-type, Authorization',
     allowResponseHeaders: 'content-type, Authorization' // Updated from exposeHeaders
   },
 
   // CSRF (Cross-Site Request Forgery) protection
-  csrf: false, // Set to true if your application uses session cookies for authentication
+  csrf: false,
 
   // HTTP Strict Transport Security (HSTS) settings to force HTTPS on all requests
   hsts: {

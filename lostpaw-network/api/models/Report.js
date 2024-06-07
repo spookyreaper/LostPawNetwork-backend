@@ -1,10 +1,11 @@
 // api/models/Report.js
 module.exports = {
   attributes: {
-    _id: {
+    id: {
       type: 'string',
       columnName: '_id',
       unique: true,
+      required: true
     },
     type: {
       type: 'string',

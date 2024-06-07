@@ -1,6 +1,6 @@
-module.exports = function(req, res, next) {
-  if (req.session && req.session.userId) {
-    return next();
+module.exports = async function(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'You must be logged in to perform this action' });
   }
-  return res.status(401).json({ error: 'You must be logged in to perform this action' });
+  next();
 };
