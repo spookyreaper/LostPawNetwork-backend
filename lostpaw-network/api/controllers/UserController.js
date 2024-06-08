@@ -23,7 +23,6 @@ module.exports = {
       const newUser = await User.create({ ...req.body, password: hashedPassword }).fetch();
       console.log('New user created:', newUser);
 
-      // Set user session
       req.session.user = { id: newUser.id };
 
       return res.status(201).json({ message: 'User registered successfully', user: newUser });
@@ -34,42 +33,43 @@ module.exports = {
   },
 
   login: async function(req, res) {
+    console.log('Login endpoint hit with data:', req.body);
     try {
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
+        console.log('User not found:', req.body.email);
         return res.status(404).json({ message: 'User not found' });
       }
-  
+
+      console.log('User found:', user);
       const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
+      console.log('Password validation result:', passwordIsValid);
+
       if (!passwordIsValid) {
         return res.status(401).json({ message: 'Invalid password' });
       }
-  
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-      return res.status(200).json({ message: 'Login successful', token });
-    } catch (err) {
-      return res.status(500).json({ message: 'Error logging in', error: err });
-    }
-  },
-  
 
-  logout: async function(req, res) {
-    try {
-      req.session.user = null;
-      return res.json({ message: 'Logout successful' });
+      console.log('Signing JWT with secret:', process.env.JWT_SECRET);
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      console.log('Issued Token:', token);
+      return res.status(200).json({ message: 'Login successful', token, userId: user.id });
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      console.error('Error in login:', err);
+      return res.status(500).json({ message: 'Error logging in', error: err });
     }
   },
 
   findOne: async function(req, res) {
+    console.log('findOne endpoint hit with id:', req.params.id);
     try {
       const user = await User.findOne({ id: req.params.id });
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
+      console.log('Found user:', user);
       return res.json(user);
     } catch (err) {
+      console.error('Error in findOne:', err);
       return res.status(500).json({ error: err.message });
     }
   },
@@ -115,6 +115,32 @@ module.exports = {
     } catch (err) {
       console.error('Error in completeProfile:', err);
       return res.status(500).json({ message: 'Error updating profile', error: err });
+    }
+  },
+
+  getProfile: async function(req, res) {
+    try {
+      const userId = req.session.user.id;
+      const user = await User.findOne({ id: userId }).populate('reports');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      return res.json(user);
+    } catch (err) {
+      return res.status(500).json({ message: 'Error fetching profile data', error: err.message });
+    }
+  },
+
+  updateProfile: async function(req, res) {
+    try {
+      const userId = req.session.user.id;
+      const updatedUser = await User.updateOne({ id: userId }).set(req.body);
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      return res.json({ message: 'Profile updated successfully', user: updatedUser });
+    } catch (err) {
+      return res.status(500).json({ message: 'Error updating profile', error: err.message });
     }
   }
 };
