@@ -1,4 +1,3 @@
-// api/models/Report.js
 module.exports = {
   attributes: {
     id: {
@@ -7,7 +6,7 @@ module.exports = {
       unique: true,
       required: true
     },
-    type: {
+    status: {
       type: 'string',
       isIn: ['lost', 'found'],
       required: true
@@ -43,18 +42,13 @@ module.exports = {
     pet: {
       model: 'pet'
     },
-    status: {
+    category: {
       type: 'string',
-      isIn: ['open', 'closed', 'reunited'],
-      defaultsTo: 'open'
+      required: true
     },
     comments: {
       type: 'string',
       allowNull: true
-    },
-    category: {
-      type: 'string',
-      required: true
     }
   }
 };

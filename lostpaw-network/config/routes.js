@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports.routes = {
   // Report routes
   'POST /report': { controller: 'ReportController', action: 'create', policy: 'isAuthenticated' },
@@ -5,6 +7,8 @@ module.exports.routes = {
   'GET /reports': 'ReportController.find',
   'GET /reports/lost/:category': 'ReportController.findLostByCategory',
   'GET /reports/lost/all': 'ReportController.findAllLost',
+  'GET /reports/found/:category': 'ReportController.findFoundByCategory',
+  'GET /reports/found/all': 'ReportController.findAllFound',
   'PUT /report/:id': { controller: 'ReportController', action: 'update', policy: 'isAuthenticated' },
   'DELETE /report/:id': { controller: 'ReportController', action: 'destroy', policy: 'isAuthenticated' },
 
@@ -26,4 +30,12 @@ module.exports.routes = {
 
   // Complete profile route
   'POST /user/complete-profile': { controller: 'UserController', action: 'completeProfile' },
+
+  // Static file route for images
+  'GET /images/pets/*': {
+    skipAssets: false,
+    fn: function (req, res) {
+      res.sendFile(path.resolve(sails.config.appPath, 'assets/images/pets/' + req.params[0]));
+    }
+  },
 };

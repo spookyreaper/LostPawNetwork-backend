@@ -1,16 +1,101 @@
+const path = require('path');
+const { ObjectId } = require('mongodb');
+
 const ReportController = {
   // Create a new report
-  create: async function(req, res) {
+  create: async function (req, res) {
     try {
-      const newReport = await Report.create(req.body).fetch();
-      return res.status(201).json({ message: 'Report created successfully', report: newReport });
+      // Log the request body and user ID
+      console.log('Request body:', req.body);
+      console.log('Authenticated user ID:', req.user.userId);
+
+      // Extract data from the request body
+      const { petName, description, location, contactInfo, animalType, breed, color, age, status, category } = req.body;
+
+      if (!status || !['lost', 'found'].includes(status)) {
+        return res.badRequest('Invalid or missing status.');
+      }
+
+      if (!category) {
+        return res.badRequest('Missing category.');
+      }
+
+      if (!breed) {
+        return res.badRequest('Missing breed.');
+      }
+
+      if (!color) {
+        return res.badRequest('Missing color.');
+      }
+
+      if (!age) {
+        return res.badRequest('Missing age.');
+      }
+
+      // Parse the location string back into an object
+      const locationObj = JSON.parse(location);
+
+      // Get userId from the authenticated user
+      const userId = req.user.userId;
+      console.log('User ID to be used for creating report:', userId);
+
+      // Upload the photo first
+      req.file('petPhoto').upload({
+        maxBytes: 10000000,
+        dirname: path.resolve(sails.config.appPath, 'assets/images/pets')
+      }, async function whenDone(err, uploadedFiles) {
+        if (err) {
+          return res.serverError(err);
+        }
+        if (uploadedFiles.length === 0) {
+          return res.badRequest('No file was uploaded');
+        }
+
+        const photoUrl = path.basename(uploadedFiles[0].fd);
+        console.log('Uploaded file URL:', photoUrl);
+
+        // Create a new pet (for simplicity, assuming each report corresponds to a new pet)
+        const newPet = await Pet.create({
+          id: new ObjectId().toString(),
+          name: petName,
+          species: animalType,
+          breed,
+          color,
+          age,
+          photoURL: `/images/pets/${photoUrl}`,
+          user: userId
+        }).fetch();
+
+        console.log('New pet created:', newPet);
+
+        // Create the report with the uploaded photo URL and other data
+        const newReport = await Report.create({
+          id: new ObjectId().toString(), // Ensure the id is generated
+          petName,
+          description,
+          location: JSON.stringify(locationObj), // Store location as string
+          latitude: locationObj.lat,
+          longitude: locationObj.lng,
+          contactInfo,
+          animalType,
+          status, // Ensure status is passed correctly
+          category,
+          photoUrls: [`/images/pets/${photoUrl}`],
+          user: userId, // Include userId
+          pet: newPet.id // Associate the pet with the report
+        }).fetch();
+
+        console.log('New report created:', newReport);
+        return res.status(201).json({ message: 'Report created successfully', report: newReport });
+      });
     } catch (err) {
+      console.error('Error in create report:', err);
       return res.status(500).json({ error: err.message });
     }
   },
 
   // Retrieve a specific report by ID
-  findOne: async function(req, res) {
+  findOne: async function (req, res) {
     try {
       const report = await Report.findOne({ id: req.params.id }).populate('pet').populate('user');
       if (!report) {
@@ -23,7 +108,7 @@ const ReportController = {
   },
 
   // Retrieve all reports
-  find: async function(req, res) {
+  find: async function (req, res) {
     try {
       const reports = await Report.find().populate('pet').populate('user');
       return res.json(reports);
@@ -32,31 +117,54 @@ const ReportController = {
     }
   },
 
-  findAllLost: async function(req, res) {
+  // Retrieve all lost reports
+  findAllLost: async function (req, res) {
     try {
-      console.log('findAllLost endpoint hit'); // Log to ensure the endpoint is hit
-      const lostReports = await Report.find({ type: 'lost' }).populate('pet');
-      console.log('Lost reports found:', lostReports); // Log the data being returned
+      const lostReports = await Report.find({ status: 'lost' }).populate('pet');
+      console.log('Lost reports with photo URLs:', lostReports);
       return res.json(lostReports);
     } catch (err) {
-      console.error('Error fetching lost reports:', err); // Log any errors
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
+  // Retrieve all found reports
+  findAllFound: async function (req, res) {
+    try {
+      console.log('findAllFound endpoint hit');
+      const foundReports = await Report.find({ status: 'found' }).populate('pet');
+      console.log('Found reports found:', foundReports);
+      return res.json(foundReports);
+    } catch (err) {
+      console.error('Error fetching found reports:', err);
       return res.status(500).json({ error: err.message });
     }
   },
 
   // Retrieve lost reports by category
-  findLostByCategory: async function(req, res) {
+  findLostByCategory: async function (req, res) {
     const { category } = req.params;
     try {
-      const lostReports = await Report.find({ type: 'lost', category }).populate('pet');
+      const lostReports = await Report.find({ status: 'lost', category }).populate('pet');
       return res.json(lostReports);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
+  // Retrieve found reports by category
+  findFoundByCategory: async function (req, res) {
+    const { category } = req.params;
+    try {
+      const foundReports = await Report.find({ status: 'found', category }).populate('pet');
+      return res.json(foundReports);
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   },
 
   // Update a report by ID
-  update: async function(req, res) {
+  update: async function (req, res) {
     try {
       const updatedReport = await Report.updateOne({ id: req.params.id }).set(req.body);
       if (!updatedReport) {
@@ -69,7 +177,7 @@ const ReportController = {
   },
 
   // Delete a report by ID
-  destroy: async function(req, res) {
+  destroy: async function (req, res) {
     try {
       const deletedReport = await Report.destroyOne({ id: req.params.id });
       if (!deletedReport) {

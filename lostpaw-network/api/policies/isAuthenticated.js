@@ -11,6 +11,7 @@ module.exports = async function(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // Attach the decoded user to the request object
+    console.log('Authenticated user ID:', req.user.userId); // Log the authenticated user ID
     next(); // Proceed to next middleware or controller action
   } catch (error) {
     return res.status(401).json({ message: 'Invalid or expired token' });
