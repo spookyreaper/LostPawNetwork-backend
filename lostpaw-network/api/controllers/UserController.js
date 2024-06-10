@@ -126,14 +126,14 @@ module.exports = {
     try {
       const userId = req.params.id; // assuming you pass the user ID as a URL parameter
       const user = await User.findOne({ id: userId });
-
+  
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-
-      const lostReports = await Report.find({ user: userId, type: 'lost' });
-      const foundReports = await Report.find({ user: userId, type: 'found' });
-
+  
+      const lostReports = await Report.find({ user: userId, status: 'lost' });
+      const foundReports = await Report.find({ user: userId, status: 'found' });
+  
       return res.status(200).json({
         user,
         lostReports,
