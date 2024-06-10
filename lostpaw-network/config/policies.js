@@ -14,7 +14,8 @@ module.exports.policies = {
   ReportController: {
     'create': 'isAuthenticated',  // Only logged-in users can create reports
     'find': true,  // Public can view all reports
-    'findOne': true  // Public can view specific reports
+    'findOne': true,  // Public can view specific reports
+    'findLostByCategory': 'isAuthenticated' // Ensure this route uses the isAuthenticated policy
   },
 
   PetController: {

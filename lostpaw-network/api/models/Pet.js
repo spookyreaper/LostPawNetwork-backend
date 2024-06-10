@@ -1,12 +1,10 @@
 module.exports = {
-  primaryKey: 'id',
-
   attributes: {
     id: {
       type: 'string',
-      required: true,
+      columnName: '_id',
       unique: true,
-      columnName: '_id'
+      required: true
     },
     name: {
       type: 'string',
@@ -30,9 +28,9 @@ module.exports = {
     },
     photoURL: {
       type: 'string',
-      allowNull: true
+      required: true
     },
-    userId: {
+    user: {
       model: 'user',
       required: true
     }

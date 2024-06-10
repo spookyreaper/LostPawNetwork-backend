@@ -1,4 +1,4 @@
-module.exports = {
+const ReportController = {
   // Create a new report
   create: async function(req, res) {
     try {
@@ -32,6 +32,17 @@ module.exports = {
     }
   },
 
+  // Retrieve lost reports by category
+  findLostByCategory: async function(req, res) {
+    const { category } = req.params;
+    try {
+      const lostReports = await Report.find({ type: 'lost', category }).populate('pet');
+      return res.json(lostReports);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   // Update a report by ID
   update: async function(req, res) {
     try {
@@ -58,3 +69,5 @@ module.exports = {
     }
   }
 };
+
+module.exports = ReportController;

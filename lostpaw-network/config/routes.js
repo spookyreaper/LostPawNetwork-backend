@@ -3,6 +3,7 @@ module.exports.routes = {
   'POST /report': { controller: 'ReportController', action: 'create', policy: 'isAuthenticated' },
   'GET /report/:id': 'ReportController.findOne',
   'GET /reports': 'ReportController.find',
+  'GET /reports/lost/:category': 'ReportController.findLostByCategory',
   'PUT /report/:id': { controller: 'ReportController', action: 'update', policy: 'isAuthenticated' },
   'DELETE /report/:id': { controller: 'ReportController', action: 'destroy', policy: 'isAuthenticated' },
 
@@ -11,6 +12,7 @@ module.exports.routes = {
   'POST /user/login': 'UserController.login',
   'POST /user/logout': { controller: 'UserController', action: 'logout', policy: 'isLoggedIn' },
   'GET /user/:id': { controller: 'UserController', action: 'findOne', policy: 'isAuthenticated' },
+  'GET /user/profile/:id': { controller: 'UserController', action: 'getProfile', policy: 'isAuthenticated' },
   'PUT /user/:id': { controller: 'UserController', action: 'update', policy: 'isAuthenticated' },
   'DELETE /user/:id': { controller: 'UserController', action: 'destroy', policy: 'isAuthenticated' },
 

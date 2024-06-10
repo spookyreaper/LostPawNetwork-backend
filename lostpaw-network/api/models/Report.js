@@ -51,6 +51,10 @@ module.exports = {
     comments: {
       type: 'string',
       allowNull: true
+    },
+    category: {
+      type: 'string',
+      required: true
     }
   }
 };

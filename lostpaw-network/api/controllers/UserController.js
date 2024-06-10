@@ -119,15 +119,26 @@ module.exports = {
   },
 
   getProfile: async function(req, res) {
+    console.log('getProfile endpoint hit with id:', req.params.id);
     try {
-      const userId = req.session.user.id;
-      const user = await User.findOne({ id: userId }).populate('reports');
+      const userId = req.params.id; // assuming you pass the user ID as a URL parameter
+      const user = await User.findOne({ id: userId });
+
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-      return res.json(user);
+
+      const lostReports = await Report.find({ user: userId, type: 'lost' });
+      const foundReports = await Report.find({ user: userId, type: 'found' });
+
+      return res.status(200).json({
+        user,
+        lostReports,
+        foundReports
+      });
     } catch (err) {
-      return res.status(500).json({ message: 'Error fetching profile data', error: err.message });
+      console.error('Error fetching profile:', err);
+      return res.status(500).json({ message: 'Error fetching profile', error: err });
     }
   },
 
