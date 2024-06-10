@@ -23,9 +23,10 @@ module.exports = {
       const newUser = await User.create({ ...req.body, password: hashedPassword }).fetch();
       console.log('New user created:', newUser);
 
-      req.session.user = { id: newUser.id };
+      const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      console.log('Issued Token:', token);
 
-      return res.status(201).json({ message: 'User registered successfully', user: newUser });
+      return res.status(201).json({ message: 'User registered successfully', user: newUser, token });
     } catch (err) {
       console.error('Error in register:', err);
       return res.status(500).json({ error: err.message });
@@ -100,23 +101,25 @@ module.exports = {
 
   completeProfile: async function(req, res) {
     console.log('Complete Profile endpoint hit with data:', req.session);
+    console.log('Request body:', req.body);
     try {
-      const user = await User.updateOne({ id: req.session.user.id }).set({
+      const user = await User.updateOne({ id: req.body.id }).set({
         contactInfo: req.body.contactInfo
       });
-
+  
       if (!user) {
-        console.log('User not found for complete profile:', req.session.user.id);
+        console.log('User not found for complete profile:', req.body.id);
         return res.status(404).json({ message: 'User not found' });
       }
       console.log('User profile updated:', user);
-
+  
       return res.status(200).json({ message: 'Profile updated successfully', user });
     } catch (err) {
       console.error('Error in completeProfile:', err);
-      return res.status(500).json({ message: 'Error updating profile', error: err });
+      return res.status(500).json({ message: 'Error updating profile', error: err.message });
     }
   },
+  
 
   getProfile: async function(req, res) {
     console.log('getProfile endpoint hit with id:', req.params.id);

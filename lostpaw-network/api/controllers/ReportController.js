@@ -32,6 +32,18 @@ const ReportController = {
     }
   },
 
+  findAllLost: async function(req, res) {
+    try {
+      console.log('findAllLost endpoint hit'); // Log to ensure the endpoint is hit
+      const lostReports = await Report.find({ type: 'lost' }).populate('pet');
+      console.log('Lost reports found:', lostReports); // Log the data being returned
+      return res.json(lostReports);
+    } catch (err) {
+      console.error('Error fetching lost reports:', err); // Log any errors
+      return res.status(500).json({ error: err.message });
+    }
+  },
+
   // Retrieve lost reports by category
   findLostByCategory: async function(req, res) {
     const { category } = req.params;

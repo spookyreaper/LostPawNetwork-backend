@@ -4,6 +4,7 @@ module.exports.routes = {
   'GET /report/:id': 'ReportController.findOne',
   'GET /reports': 'ReportController.find',
   'GET /reports/lost/:category': 'ReportController.findLostByCategory',
+  'GET /reports/lost/all': 'ReportController.findAllLost',
   'PUT /report/:id': { controller: 'ReportController', action: 'update', policy: 'isAuthenticated' },
   'DELETE /report/:id': { controller: 'ReportController', action: 'destroy', policy: 'isAuthenticated' },
 
