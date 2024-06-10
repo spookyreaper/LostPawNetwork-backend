@@ -16,7 +16,7 @@ module.exports = {
   },
   custom: {
     baseUrl: 'https://lostpawnetwork-100c261cba8a.herokuapp.com/',
-    internalEmailAddress: 'support@example.com',
+    internalEmailAddress: 'Brandon.alvarado9991@gmail.com',
   },
   log: {
     level: 'debug',
