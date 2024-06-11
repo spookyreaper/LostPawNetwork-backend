@@ -1,6 +1,11 @@
 const sails = require('sails');
 const bcrypt = require('bcrypt');
 const { ObjectId } = require('mongodb');
+require('dotenv').config();
+
+console.log('Session Secret:', process.env.SESSION_SECRET); // Check if the secret is being loaded
+console.log('MongoDB URI:', process.env.MONGODB_URI); // Check if the MongoDB URI is being loaded
+
 
 async function seedData() {
   try {
