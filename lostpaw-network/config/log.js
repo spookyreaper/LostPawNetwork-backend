@@ -1,19 +1,19 @@
-// config/log.js
+const winston = require('winston');
+
+const customLogger = process.env.NODE_ENV === 'production' ? winston.createLogger({
+  level: 'warn',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'warn',
+      maxsize: 1024 * 1024 * 10, // 10MB
+    })
+  ]
+}) : undefined;
+
 module.exports.log = {
-  // Environment-specific logging levels
   level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
-
-  // Use custom transports in production for better performance
-  custom: process.env.NODE_ENV === 'production' ? {
-    transports: [
-      new (require('winston').transports.File)({
-        level: 'warn',
-        filename: 'logs/error.log',
-        maxsize: 1024 * 1024 * 10 // 10MB
-      })
-    ]
-  } : undefined,
-
-  // Setup for console logging in development
+  custom: customLogger,
   inspect: process.env.NODE_ENV !== 'production'
 };
