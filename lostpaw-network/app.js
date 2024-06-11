@@ -46,4 +46,10 @@ try {
   return;
 }
 
-sails.lift(rc('sails'));
+sails.lift(rc('sails'), function(err) {
+  if (err) {
+    console.error('Failed to lift Sails app:', err);
+    return;
+  }
+  console.log('Sails app lifted successfully.');
+});

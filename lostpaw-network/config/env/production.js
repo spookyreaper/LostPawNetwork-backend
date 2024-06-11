@@ -1,3 +1,6 @@
+
+const MongoStore = require('connect-mongo');
+
 module.exports = {
   datastores: {
     default: {
@@ -8,12 +11,10 @@ module.exports = {
 
   session: {
     secret: process.env.SESSION_SECRET,
-    adapter: 'connect-mongo',
-    url: process.env.MONGODB_URI,
-    collection: 'sessions',
-    auto_reconnect: true,
-    ssl: true,
-    stringify: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI, // Corrected property name to mongoUrl
+      collectionName: 'sessions'
+    }),
     cookie: {
       secure: true,
       httpOnly: true,

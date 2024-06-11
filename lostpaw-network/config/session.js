@@ -4,7 +4,7 @@ const MongoStore = require('connect-mongo');
 module.exports.session = {
   secret: process.env.SESSION_SECRET, // Ensure you have a secret set in your environment variables
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI, // Ensure this URI is correct
+    mongoUrl: process.env.MONGODB_URI, // Corrected property name to mongoUrl
     collectionName: 'sessions'
   }),
   cookie: {
