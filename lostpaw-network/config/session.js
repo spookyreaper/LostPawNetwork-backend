@@ -2,7 +2,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
 module.exports.session = {
-  secret: process.env.SESSION_SECRET || 'extremely-secure-keyboard-cat', // Fallback to a default secret if env variable is not set
+  secret: process.env.SESSION_SECRET, // Ensure you have a secret set in your environment variables
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     collectionName: 'sessions'
