@@ -1,7 +1,7 @@
 module.exports.security = {
   cors: {
     allRoutes: true,
-    allowOrigins: ['https://lostpawnetworks-de3953acbc2a.herokuapp.com'],
+    allowOrigins: ['https://lostpawnetwork.netlify.app'],
     allowCredentials: true, // Allow credentials if using cookies or authentication
     allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
     allowRequestHeaders: 'content-type, Authorization',

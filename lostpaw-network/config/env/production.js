@@ -21,7 +21,7 @@ module.exports = {
   },
   sockets: {
     onlyAllowOrigins: [
-      'https://lostpawnetworks-de3953acbc2a.herokuapp.com',
+      'https://lostpawnetwork.netlify.app',
     ],
   },
   http: {
