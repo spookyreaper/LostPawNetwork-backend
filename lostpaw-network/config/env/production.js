@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 module.exports = {
   datastores: {
     default: {
@@ -23,7 +21,7 @@ module.exports = {
   },
   sockets: {
     onlyAllowOrigins: [
-      'https://lostpawnetwork.netlify.app',
+      'https://lostpawnetworks-de3953acbc2a.herokuapp.com',
     ],
   },
   http: {
