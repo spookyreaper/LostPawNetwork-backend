@@ -1,15 +1,15 @@
 module.exports.security = {
   cors: {
     allRoutes: true,
-    allowOrigins: ['https://lostpawnetwork.netlify.app'],
-    allowCredentials: true,
+    allowOrigins: 'http://localhost:5173', // Specify your frontend URL
+    allowCredentials: true, // Allow credentials if using cookies or authentication
     allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
     allowRequestHeaders: 'content-type, Authorization',
-    allowResponseHeaders: 'content-type, Authorization'
+    allowResponseHeaders: 'content-type, Authorization' // Updated from exposeHeaders
   },
-  
-  csrf: false,
 
+  // CSRF (Cross-Site Request Forgery) protection
+  csrf: false,
 
   // HTTP Strict Transport Security (HSTS) settings to force HTTPS on all requests
   hsts: {
