@@ -23,7 +23,7 @@ module.exports = {
   },
   sockets: {
     onlyAllowOrigins: [
-      'https://lostpawnetwork.netlify.app/',
+      'https://lostpawnetwork.netlify.app',
     ],
   },
   http: {
