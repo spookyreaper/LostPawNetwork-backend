@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('Session Secret:', process.env.SESSION_SECRET);
 
 /**
  * app.js

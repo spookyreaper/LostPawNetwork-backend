@@ -1,4 +1,11 @@
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const express = require('express');
+
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URI,
+  collectionName: 'sessions'
+});
 
 module.exports.http = {
   middleware: {
@@ -9,10 +16,21 @@ module.exports.http = {
       'compress',
       'poweredBy',
       'router',
-      'www', // Ensure this middleware is enabled
+      'www',
       'favicon',
     ],
-    session: require('express-session')({ secret: 'aRandomStringHere', saveUninitialized: true, resave: false, cookie: { maxAge: 24 * 60 * 60 * 1000 } }),
+    session: session({
+      secret: process.env.SESSION_SECRET,
+      store: sessionStore,
+      saveUninitialized: false,
+      resave: false,
+      cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        secure: process.env.NODE_ENV === 'production', // secure cookie for HTTPS, ensure your NODE_ENV is correctly set
+        httpOnly: true,
+        sameSite: 'lax'
+      }
+    }),
     www: express.static(require('path').resolve(__dirname, '../assets')),
   }
 };

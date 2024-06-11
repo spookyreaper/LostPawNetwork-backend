@@ -1,7 +1,7 @@
 // config/models.js
 module.exports.models = {
   datastore: 'default',
-  migrate: 'alter',
+  migrate: 'safe',
   primaryKey: 'id',
   attributes: {
     id: { 

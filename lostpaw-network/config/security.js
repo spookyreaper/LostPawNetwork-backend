@@ -1,21 +1,18 @@
 module.exports.security = {
   cors: {
     allRoutes: true,
-    allowOrigins: ['http://localhost:5173', 'https://lostpawnetwork.netlify.app'], // Specify your frontend URLs
+    allowOrigins: ['http://localhost:5173', 'https://lostpawnetwork.netlify.app'],
     allowCredentials: true,
     allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
     allowRequestHeaders: 'content-type, Authorization',
     allowResponseHeaders: 'content-type, Authorization'
   },
-
   csrf: false,
-
   hsts: {
     maxAge: 365 * 24 * 60 * 60, // One year in seconds
-    includeSubDomains: true,    // Apply HSTS to all subdomains
-    preload: true               // Opt-in to preload list for browsers (consider implications)
+    includeSubDomains: true,
+    preload: true
   },
-
   csp: {
     useDefaults: true,
     directives: {
