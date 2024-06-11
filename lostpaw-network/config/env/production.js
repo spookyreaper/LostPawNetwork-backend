@@ -5,6 +5,7 @@ module.exports = {
       url: process.env.MONGODB_URI,
     },
   },
+
   session: {
     secret: process.env.SESSION_SECRET,
     adapter: 'connect-mongo',
@@ -20,19 +21,23 @@ module.exports = {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   },
+
   sockets: {
-    onlyAllowOrigins: ["https://lostpawnetwork-100c261cba8a.herokuapp.com/"],
+    onlyAllowOrigins: ["https://lostpawnetwork-100c261cba8a.herokuapp.com", "http://localhost:5173", "https://lostpawnetwork.netlify.app"],
   },
+
   log: {
     level: 'debug',
   },
+
   http: {
     trustProxy: true,
   },
+
   security: {
     cors: {
       allRoutes: true,
-      allowOrigins: ['https://lostpawnetwork.netlify.app/'],
+      allowOrigins: ['http://localhost:5173', 'https://lostpawnetwork.netlify.app'],
       allowCredentials: true,
       allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
       allowRequestHeaders: 'content-type, Authorization',

@@ -1,10 +1,22 @@
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 module.exports.session = {
-  secret: '4e5d6fc9d8bb24e1aaf0f8bdb1eb04c5',
+  secret: process.env.SESSION_SECRET,
+  adapter: 'connect-mongo',
+  url: process.env.MONGODB_URI,
+  collection: 'sessions',
+  auto_reconnect: true,
+  ssl: true,
+  stringify: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
   },
-  maxAge: 24 * 60 * 60 * 1000,
-  clearExpiredSessionsInterval: 24 * 60 * 60 * 1000
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60 // 1 day
+  })
 };
