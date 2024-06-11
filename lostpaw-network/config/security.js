@@ -2,14 +2,14 @@ module.exports.security = {
   cors: {
     allRoutes: true,
     allowOrigins: ['https://lostpawnetwork.netlify.app'],
-    allowCredentials: true, // Allow credentials if using cookies or authentication
+    allowCredentials: true,
     allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
     allowRequestHeaders: 'content-type, Authorization',
-    allowResponseHeaders: 'content-type, Authorization' // Updated from exposeHeaders
+    allowResponseHeaders: 'content-type, Authorization'
   },
-
-  // CSRF (Cross-Site Request Forgery) protection
+  
   csrf: false,
+
 
   // HTTP Strict Transport Security (HSTS) settings to force HTTPS on all requests
   hsts: {
