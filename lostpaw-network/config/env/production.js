@@ -1,4 +1,3 @@
-
 const MongoStore = require('connect-mongo');
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
   session: {
     secret: process.env.SESSION_SECRET,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI, // Corrected property name to mongoUrl
+      mongoUrl: process.env.MONGODB_URI,
       collectionName: 'sessions'
     }),
     cookie: {
@@ -21,6 +20,8 @@ module.exports = {
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
+    saveUninitialized: false,
+    resave: false
   },
 
   sockets: {
@@ -30,7 +31,6 @@ module.exports = {
       "https://lostpawnetwork.netlify.app"
     ],
     beforeConnect: function(handshake, proceed) {
-      // Example function to check allowed origins
       if (this.onlyAllowOrigins.includes(handshake.headers.origin)) {
         return proceed(undefined, true);
       }

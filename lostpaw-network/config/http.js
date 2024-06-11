@@ -1,5 +1,8 @@
+require('dotenv').config();
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const express = require('express');
+const path = require('path');
 
 module.exports.http = {
   middleware: {
@@ -16,7 +19,7 @@ module.exports.http = {
     session: session({
       secret: process.env.SESSION_SECRET,
       store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI, // Corrected property name to mongoUrl
+        mongoUrl: process.env.MONGODB_URI,
         collectionName: 'sessions'
       }),
       saveUninitialized: false,
@@ -28,6 +31,6 @@ module.exports.http = {
         sameSite: 'lax'
       }
     }),
-    www: require('express').static(require('path').resolve(__dirname, '../assets')),
+    www: express.static(path.resolve(__dirname, '../assets')),
   }
 };
