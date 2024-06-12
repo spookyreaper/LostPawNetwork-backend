@@ -70,4 +70,5 @@ sails.lift({}, async function(err) {
       console.log('Sails app lowered successfully.');
     });
   }
+  process.exit();
 });
