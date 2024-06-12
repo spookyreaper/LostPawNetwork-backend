@@ -38,4 +38,8 @@ module.exports.routes = {
       res.sendFile(path.resolve(sails.config.appPath, 'assets/images/pets/' + req.params[0]));
     }
   },
+
+  'GET /health': async function(req, res) {
+    return res.send('OK');
+  },
 };
