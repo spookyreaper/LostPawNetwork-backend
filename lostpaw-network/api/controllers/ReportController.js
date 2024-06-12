@@ -5,10 +5,6 @@ const ReportController = {
   // Create a new report
   create: async function (req, res) {
     try {
-      // Log the request body and user ID
-      console.log('Request body:', req.body);
-      console.log('Authenticated user ID:', req.user.userId);
-
       // Extract data from the request body
       const { petName, description, location, contactInfo, animalType, breed, color, age, status, category } = req.body;
 
@@ -37,7 +33,6 @@ const ReportController = {
 
       // Get userId from the authenticated user
       const userId = req.user.userId;
-      console.log('User ID to be used for creating report:', userId);
 
       // Upload the photo first
       req.file('petPhoto').upload({
@@ -52,7 +47,6 @@ const ReportController = {
         }
 
         const photoUrl = path.basename(uploadedFiles[0].fd);
-        console.log('Uploaded file URL:', photoUrl);
 
         // Create a new pet (for simplicity, assuming each report corresponds to a new pet)
         const newPet = await Pet.create({
@@ -65,8 +59,6 @@ const ReportController = {
           photoURL: `/images/pets/${photoUrl}`,
           user: userId
         }).fetch();
-
-        console.log('New pet created:', newPet);
 
         // Create the report with the uploaded photo URL and other data
         const newReport = await Report.create({
@@ -85,11 +77,9 @@ const ReportController = {
           pet: newPet.id // Associate the pet with the report
         }).fetch();
 
-        console.log('New report created:', newReport);
         return res.status(201).json({ message: 'Report created successfully', report: newReport });
       });
     } catch (err) {
-      console.error('Error in create report:', err);
       return res.status(500).json({ error: err.message });
     }
   },
@@ -121,7 +111,6 @@ const ReportController = {
   findAllLost: async function (req, res) {
     try {
       const lostReports = await Report.find({ status: 'lost' }).populate('pet');
-      console.log('Lost reports with photo URLs:', lostReports);
       return res.json(lostReports);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -131,12 +120,9 @@ const ReportController = {
   // Retrieve all found reports
   findAllFound: async function (req, res) {
     try {
-      console.log('findAllFound endpoint hit');
       const foundReports = await Report.find({ status: 'found' }).populate('pet');
-      console.log('Found reports found:', foundReports);
       return res.json(foundReports);
     } catch (err) {
-      console.error('Error fetching found reports:', err);
       return res.status(500).json({ error: err.message });
     }
   },

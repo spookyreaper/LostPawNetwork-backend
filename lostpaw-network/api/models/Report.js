@@ -1,3 +1,4 @@
+// This model represents a report of a lost or found pet.
 module.exports = {
   attributes: {
     id: {

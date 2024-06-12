@@ -1,6 +1,4 @@
-// api/models/User.js
-const bcrypt = require('bcrypt');
-
+// Description: User model for the LostPaw Network API.
 module.exports = {
   attributes: {
     id: {

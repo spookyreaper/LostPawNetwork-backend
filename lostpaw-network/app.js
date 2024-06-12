@@ -1,6 +1,4 @@
 require('dotenv').config();
-console.log('Session Secret:', process.env.SESSION_SECRET);
-console.log('MongoDB URI:', process.env.MONGODB_URI);
 /**
  * app.js
  *

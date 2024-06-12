@@ -131,6 +131,7 @@ module.exports = {
     }
   },
 
+  // Update user profile
   updateProfile: async function(req, res) {
     try {
       const userId = req.user.userId;
