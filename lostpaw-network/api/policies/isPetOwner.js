@@ -1,17 +1,18 @@
-module.exports = async function(req, res, next) {
-    if (!req.session.userId) {
-      return res.status(401).json({ error: 'You must be logged in to perform this action' });
-    }
-  
+const { authenticatedUser, isOwner, httpError, handleError } = require('../../lib/report-validation');
+
+module.exports = async function (req, res, next) {
+  try {
+    const userId = authenticatedUser(req);
     const pet = await Pet.findOne({ id: req.params.id });
     if (!pet) {
-      return res.status(404).json({ error: 'Pet not found' });
+      throw httpError(404, 'Pet not found');
     }
-  
-    if (pet.user !== req.session.userId) {
-      return res.status(403).json({ error: 'You are not authorized to update this pet' });
+    if (!isOwner(pet, userId)) {
+      throw httpError(403, 'You are not authorized to modify this pet');
     }
-  
+    req.pet = pet;
     return next();
-  };
-  
+  } catch (error) {
+    return handleError(res, error);
+  }
+};

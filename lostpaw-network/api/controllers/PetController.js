@@ -1,58 +1,116 @@
+const { generateId } = require('../../lib/id');
+const { uploadPetPhoto } = require('../../lib/uploads');
+const validate = require('../../lib/report-validation');
+
+function petValues(body, required) {
+  const values = {};
+  for (const field of ['name', 'breed', 'color']) {
+    if (required || field in body) {
+      values[field] = validate.text(body[field], field, 150);
+    }
+  }
+  if (required || 'species' in body) { values.species = validate.species(body.species); }
+  if (required || 'age' in body) { values.age = validate.age(body.age); }
+  if (required || 'photoURL' in body) { values.photoURL = validate.photoURL(body.photoURL); }
+  return values;
+}
+
 module.exports = {
   create: async function (req, res) {
     try {
-      const newPet = await Pet.create({ ...req.body, userId: req.body.userId }).fetch();
-      return res.status(201).json(newPet);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
+      const user = validate.authenticatedUser(req);
+      const values = petValues(validate.body(req.body), true);
+      const pet = await Pet.create({ id: generateId(), ...values, user }).fetch();
+      return res.status(201).json(validate.publicPet(pet));
+    } catch (error) {
+      return validate.handleError(res, error);
     }
   },
 
-  find: async function(req, res) {
+  find: async function (req, res) {
     try {
-      const reports = await Report.find().populate('pet');
-      return res.json(reports);
-    } catch (err) {
-      return res.serverError(err);
+      const pets = await Pet.find().sort('createdAt DESC');
+      return res.json(pets.map(validate.publicPet));
+    } catch (error) {
+      return validate.handleError(res, error);
+    }
+  },
+
+  findOne: async function (req, res) {
+    try {
+      const pet = await Pet.findOne({ id: req.params.id });
+      if (!pet) {
+        throw validate.httpError(404, 'Pet not found');
+      }
+      return res.json(validate.publicPet(pet));
+    } catch (error) {
+      return validate.handleError(res, error);
     }
   },
 
   update: async function (req, res) {
     try {
-      if (req.body.userId) {
-        delete req.body.userId;
+      const user = validate.authenticatedUser(req);
+      const existing = await Pet.findOne({ id: req.params.id });
+      if (!existing) {
+        throw validate.httpError(404, 'Pet not found');
       }
-      const updatedPet = await Pet.updateOne({ id: req.params.id }).set(req.body);
-      if (!updatedPet) {
-        return res.status(404).json({ error: 'No pet found with the specified ID' });
+      if (!validate.isOwner(existing, user)) {
+        throw validate.httpError(403, 'You are not authorized to update this pet');
       }
-      return res.status(200).json(updatedPet);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
+      const values = petValues(validate.body(req.body), false);
+      if (Object.keys(values).length === 0) {
+        throw validate.httpError(400, 'No editable pet fields were provided.');
+      }
+      const pet = await Pet.updateOne({ id: req.params.id, user }).set(values);
+      if (!pet) {
+        throw validate.httpError(404, 'Pet not found');
+      }
+      const reportValues = {};
+      if (values.name) { reportValues.petName = values.name; }
+      if (values.species) {
+        reportValues.animalType = values.species;
+        reportValues.category = values.species;
+      }
+      if (Object.keys(reportValues).length) {
+        await Report.update({ pet: pet.id, user }).set(reportValues);
+      }
+      return res.json(validate.publicPet(pet));
+    } catch (error) {
+      return validate.handleError(res, error);
     }
   },
 
   destroy: async function (req, res) {
     try {
-      const deletedPet = await Pet.destroyOne({ id: req.params.id });
-      if (!deletedPet) {
-        return res.status(404).json({ error: 'No pet found with the specified ID' });
+      const user = validate.authenticatedUser(req);
+      const existing = await Pet.findOne({ id: req.params.id });
+      if (!existing) {
+        throw validate.httpError(404, 'Pet not found');
+      }
+      if (!validate.isOwner(existing, user)) {
+        throw validate.httpError(403, 'You are not authorized to delete this pet');
+      }
+      if (await Report.count({ pet: req.params.id })) {
+        throw validate.httpError(409, 'Remove this pet\'s reports before deleting the pet.');
+      }
+      const pet = await Pet.destroyOne({ id: req.params.id, user });
+      if (!pet) {
+        throw validate.httpError(404, 'Pet not found');
       }
       return res.status(204).send();
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
+    } catch (error) {
+      return validate.handleError(res, error);
     }
   },
 
-  uploadPhoto: function(req, res) {
-    req.file('petPhoto').upload({
-      dirname: require('path').resolve(sails.config.appPath, 'assets/images/pets')
-    }, function (err, uploadedFiles) {
-      if (err) return res.serverError(err);
-      if (uploadedFiles.length === 0) return res.badRequest('No file was uploaded');
-      
-      const photoURL = '/images/pets/' + require('path').basename(uploadedFiles[0].fd);
-      return res.json({ message: 'File uploaded successfully!', url: photoURL });
-    });
-  }
+  uploadPhoto: async function (req, res) {
+    try {
+      validate.authenticatedUser(req);
+      const photo = req.uploadedPhoto || await uploadPetPhoto(req);
+      return res.json({ message: 'File uploaded successfully!', url: photo.url, photoURL: photo.url });
+    } catch (error) {
+      return validate.handleError(res, error);
+    }
+  },
 };

@@ -1,45 +1,54 @@
-const path = require('path');
+const path = require('node:path');
+
+function servePhoto(req, res) {
+  const filename = req.params.filename;
+  if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:jpe?g|png|gif|webp|avif)$/i.test(filename)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  const { getUploadDirectory } = require('../lib/uploads');
+  const directories = [getUploadDirectory(), path.join(sails.config.appPath, 'assets/images/pets')];
+  const send = (index) => res.sendFile(filename, {
+    root: directories[index],
+    dotfiles: 'deny',
+    headers: { 'Cache-Control': 'public, max-age=86400', 'X-Content-Type-Options': 'nosniff' },
+  }, (error) => {
+    if (!error || res.headersSent) return;
+    if (error.status === 404 || error.code === 'ENOENT') {
+      if (index + 1 < directories.length) return send(index + 1);
+      return res.status(404).json({ error: 'Photo not found' });
+    }
+    return res.status(500).json({ error: 'Unable to load this photo' });
+  });
+  return send(0);
+}
 
 module.exports.routes = {
-  // Report routes
-  'POST /report': { controller: 'ReportController', action: 'create', policy: 'isAuthenticated' },
+  'GET /': function(req, res) { return res.json({ service: 'Lost Paw Network API', health: '/health' }); },
+  'GET /health': function(req, res) { return res.json({ status: 'ok' }); },
+  'POST /report': 'ReportController.create',
   'GET /report/:id': 'ReportController.findOne',
   'GET /reports': 'ReportController.find',
-  'GET /reports/lost/:category': 'ReportController.findLostByCategory',
   'GET /reports/lost/all': 'ReportController.findAllLost',
-  'GET /reports/found/:category': 'ReportController.findFoundByCategory',
+  'GET /reports/lost/:category': 'ReportController.findLostByCategory',
   'GET /reports/found/all': 'ReportController.findAllFound',
-  'PUT /report/:id': { controller: 'ReportController', action: 'update', policy: 'isAuthenticated' },
-  'DELETE /report/:id': { controller: 'ReportController', action: 'destroy', policy: 'isAuthenticated' },
-
-  // User routes
+  'GET /reports/found/:category': 'ReportController.findFoundByCategory',
+  'PUT /report/:id': 'ReportController.update',
+  'DELETE /report/:id': 'ReportController.destroy',
   'POST /user/register': 'UserController.register',
   'POST /user/login': 'UserController.login',
-  'POST /user/logout': { controller: 'UserController', action: 'logout', policy: 'isLoggedIn' },
-  'GET /user/:id': { controller: 'UserController', action: 'findOne', policy: 'isAuthenticated' },
-  'GET /user/profile/:id': { controller: 'UserController', action: 'getProfile', policy: 'isAuthenticated' },
-  'PUT /user/:id': { controller: 'UserController', action: 'update', policy: 'isAuthenticated' },
-  'DELETE /user/:id': { controller: 'UserController', action: 'destroy', policy: 'isAuthenticated' },
-
-  // Pet routes
-  'POST /pet': { controller: 'PetController', action: 'create', policy: 'isAuthenticated' },
-  'GET /pet/:id': { controller: 'PetController', action: 'findOne', policy: 'isAuthenticated' },
-  'PUT /pet/:id': { controller: 'PetController', action: 'update', policy: 'isAuthenticated' },
-  'DELETE /pet/:id': { controller: 'PetController', action: 'destroy', policy: 'isAuthenticated' },
-  'POST /pet/uploadPhoto': { controller: 'PetController', action: 'uploadPhoto', policy: 'isAuthenticated' },
-
-  // Complete profile route
-  'POST /user/complete-profile': { controller: 'UserController', action: 'completeProfile' },
-
-  // Static file route for images
-  'GET /images/pets/*': {
-    skipAssets: false,
-    fn: function (req, res) {
-      res.sendFile(path.resolve(sails.config.appPath, 'assets/images/pets/' + req.params[0]));
-    }
-  },
-
-  'GET /health': async function(req, res) {
-    return res.send('OK');
-  },
+  'POST /user/logout': 'UserController.logout',
+  'PUT /user/password': 'UserController.changePassword',
+  'GET /user/profile/:id': 'UserController.getProfile',
+  'POST /user/complete-profile': 'UserController.completeProfile',
+  'GET /user/:id': 'UserController.findOne',
+  'PUT /user/:id': 'UserController.update',
+  'DELETE /user/:id': 'UserController.destroy',
+  'POST /pet': 'PetController.create',
+  'GET /pets': 'PetController.find',
+  'GET /pet': 'PetController.find',
+  'POST /pet/uploadPhoto': 'PetController.uploadPhoto',
+  'GET /pet/:id': 'PetController.findOne',
+  'PUT /pet/:id': 'PetController.update',
+  'DELETE /pet/:id': 'PetController.destroy',
+  'GET /images/pets/:filename': { fn: servePhoto, skipAssets: false },
 };

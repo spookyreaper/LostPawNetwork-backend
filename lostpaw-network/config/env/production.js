@@ -1,60 +1,12 @@
-const MongoStore = require('connect-mongo');
+const { getDatastoreConfig, getAllowedOrigins, getTrustedProxies, initializeEnvironment } = require('../../lib/runtime');
+// Sails can select this file via --prod even when NODE_ENV is unset.
+const production = { ...process.env, NODE_ENV: 'production' };
+initializeEnvironment(production);
 
 module.exports = {
-  datastores: {
-    default: {
-      adapter: 'sails-mongo',
-      url: process.env.MONGODB_URI,
-    },
-  },
-
-  session: {
-    secret: process.env.SESSION_SECRET,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions'
-    }),
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-    saveUninitialized: false,
-    resave: false
-  },
-
-  sockets: {
-    onlyAllowOrigins: [
-      "https://lostpawnetwork-100c261cba8a.herokuapp.com",
-      "http://localhost:5173",
-      "https://lostpawnetwork.netlify.app"
-    ],
-    beforeConnect: function(handshake, proceed) {
-      if (this.onlyAllowOrigins.includes(handshake.headers.origin)) {
-        return proceed(undefined, true);
-      }
-      return proceed(new Error('Not allowed by CORS'), false);
-    }
-  },
-
-  log: {
-    level: 'debug',
-  },
-
-  http: {
-    trustProxy: true,  // Ensure that Sails can correctly see the protocol in Heroku
-  },
-
-  security: {
-    cors: {
-      allRoutes: true,
-      allowOrigins: ['http://localhost:5173', 'https://lostpawnetwork.netlify.app'],
-      allowCredentials: true,
-      allowRequestMethods: 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
-      allowRequestHeaders: 'content-type, Authorization',
-      allowResponseHeaders: 'content-type, Authorization',
-    },
-    csrf: false,
-  },
+  models: { migrate: 'safe' },
+  datastores: { default: getDatastoreConfig(production) },
+  http: { trustProxy: getTrustedProxies(production) },
+  security: { cors: { allowOrigins: getAllowedOrigins(production), allowCredentials: false } },
+  log: { level: 'warn' },
 };

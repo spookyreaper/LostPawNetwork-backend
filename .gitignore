@@ -1,0 +1,27 @@
+# Dependencies and generated/local data
+node_modules/
+.tmp/
+.data/
+data/
+.local/
+logs/
+coverage/
+uploads/
+private/uploads/
+assets/images/pets/
+
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+config/local.js
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+.DS_Store
+
+# Keep project configuration and lockfile despite global ignore patterns.
+!.gitignore
+!lostpaw-network/package-lock.json

@@ -1,21 +1,13 @@
-const path = require('path');
+const { uploadPetPhoto } = require('../../lib/uploads');
+const { authenticatedUser, handleError } = require('../../lib/report-validation');
 
-module.exports = function uploadPhoto(req, res, next) {
-  req.file('petPhoto').upload({
-    // Set the maximum file size (e.g., 10 MB)
-    maxBytes: 10000000,
-    // Set the directory where files will be saved
-    dirname: path.resolve(sails.config.appPath, 'assets/images/pets')
-  }, function whenDone(err, uploadedFiles) {
-    if (err) {
-      return res.serverError(err);
-    }
-    if (uploadedFiles.length === 0) {
-      return res.badRequest('No file was uploaded');
-    }
-
-    // Add the file path to the request object for further processing
-    req.uploadedFilePath = uploadedFiles[0].fd;
-    next();
-  });
+module.exports = async function uploadPhoto(req, res, next) {
+  try {
+    authenticatedUser(req);
+    req.uploadedPhoto = await uploadPetPhoto(req);
+    req.uploadedFilePath = req.uploadedPhoto.filePath;
+    return next();
+  } catch (error) {
+    return handleError(res, error);
+  }
 };

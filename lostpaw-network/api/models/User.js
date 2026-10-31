@@ -1,9 +1,12 @@
-// Description: User model for the LostPaw Network API.
+const publicFields = ['id', 'username', 'email', 'contactInfo', 'accountCreated', 'createdAt', 'updatedAt'];
+
 module.exports = {
   attributes: {
     id: {
       type: 'string',
       columnName: '_id',
+      required: true,
+      unique: true
     },
     username: {
       type: 'string',
@@ -33,6 +36,11 @@ module.exports = {
   },
 
   customToJSON: function() {
-    return _.omit(this, ['password']);
+    return publicFields.reduce((user, field) => {
+      if (this[field] !== undefined) {
+        user[field] = this[field];
+      }
+      return user;
+    }, {});
   }
 };

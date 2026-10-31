@@ -1,11 +1,9 @@
-module.exports = async function(req, res, next) {
-  if (!req.session.userId) {
-    return res.status(401).json({ error: 'You must be logged in to perform this action' });
+module.exports = function(req, res, next) {
+  if (!req.user || typeof req.user.userId !== 'string' || !req.user.userId) {
+    return res.status(401).json({ message: 'An authorization token is required.' });
   }
-
-  if (req.params.id !== req.session.userId) {
-    return res.status(403).json({ error: 'You can only update your own profile' });
+  if (!req.params || req.params.id !== req.user.userId) {
+    return res.status(403).json({ message: 'You can only change your own profile.' });
   }
-
   return next();
 };
