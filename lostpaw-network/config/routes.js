@@ -25,6 +25,7 @@ function servePhoto(req, res) {
 module.exports.routes = {
   'GET /': function(req, res) { return res.json({ service: 'Lost Paw Network API', health: '/health' }); },
   'GET /health': function(req, res) { return res.json({ status: 'ok' }); },
+  'POST /locations/search': 'LocationController.search',
   'POST /report': 'ReportController.create',
   'GET /report/:id': 'ReportController.findOne',
   'GET /reports': 'ReportController.find',

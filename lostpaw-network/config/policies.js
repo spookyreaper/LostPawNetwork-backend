@@ -1,5 +1,6 @@
 module.exports.policies = {
   '*': false,
+  LocationController: { search: ['isAuthenticated', 'locationSearchThrottle'] },
   UserController: {
     register: 'registerThrottle',
     login: 'loginThrottle',

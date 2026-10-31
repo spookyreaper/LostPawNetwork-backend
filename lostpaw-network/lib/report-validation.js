@@ -60,6 +60,10 @@ function location(value) {
     throw httpError(400, 'Location must contain valid latitude and longitude.');
   }
   const normalized = { lat: Number(coordinates.lat), lng: Number(coordinates.lng) };
+  if (coordinates.label !== undefined) {
+    const label = text(coordinates.label, 'Place name', 300, false);
+    if (label) normalized.label = label;
+  }
   return { location: JSON.stringify(normalized), latitude: normalized.lat, longitude: normalized.lng };
 }
 

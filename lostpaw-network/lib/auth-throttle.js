@@ -6,6 +6,7 @@ const limits = {
   login: { windowMs: 15 * MINUTE, ip: 30, account: 10 },
   register: { windowMs: 60 * MINUTE, ip: 10, account: 5 },
   sensitive: { windowMs: 15 * MINUTE, ip: 30, account: 10 },
+  location: { windowMs: 15 * MINUTE, ip: 30, account: 15 },
 };
 let lastCleanupAt = 0;
 
@@ -76,8 +77,9 @@ async function throttleAuthentication(req, kind, model, now = Date.now()) {
     await model.destroy({ expiresAt: { '<=': now } });
     lastCleanupAt = now;
   }
-  const account = kind === 'sensitive' ? req.user?.userId : accountFor(req);
-  if (kind === 'sensitive' && (typeof account !== 'string' || !account)) throw new Error('Verified user required.');
+  const verifiedAccount = kind === 'sensitive' || kind === 'location';
+  const account = verifiedAccount ? req.user?.userId : accountFor(req);
+  if (verifiedAccount && (typeof account !== 'string' || !account)) throw new Error('Verified user required.');
   const buckets = [['ip', clientAddress(req)]];
   if (account) buckets.push(['account', account]);
   for (const [dimension, value] of buckets) {
@@ -101,4 +103,4 @@ function createAuthThrottlePolicy(kind) {
   };
 }
 
-module.exports = { throttleAuthentication, clientAddress, createAuthThrottlePolicy };
+module.exports = { throttleAuthentication, clientAddress, createAuthThrottlePolicy, consumeCounter: consume };

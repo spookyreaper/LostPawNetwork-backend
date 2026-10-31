@@ -6,7 +6,8 @@ The backend for a community app that helps lost and found pets get home. It powe
 
 ## What it supports
 
-- Lost and found pet reports with photos, coordinates, and animal categories.
+- Lost and found pet reports with photos, saved place names, map locations, and animal categories.
+- Authenticated address/place lookup so reporters can choose a location without entering coordinates.
 - Account registration, login, profiles, and ownership checks on edits and deletion.
 - One-hour, persisted JWT sessions with server-side logout revocation.
 - Login and registration throttling, password hashing, and password confirmation for sensitive account changes.

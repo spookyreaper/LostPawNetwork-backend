@@ -30,6 +30,7 @@ Use `.env.example` as a configuration reference. Keep any existing `.env` file a
 | `JWT_SECRET` | Random signing secret of at least 32 UTF-8 bytes. Required in production; obvious placeholders are rejected. |
 | `FRONTEND_ORIGINS` | Comma-separated complete frontend origins, without paths or wildcards. Defaults include Vite development and preview origins locally. Required explicitly in production, using HTTPS. |
 | `TRUST_PROXY_IPS` | Exact trusted proxy IPs or CIDRs when TLS terminates at a reverse proxy. Leave unset for direct connections; blanket `TRUST_PROXY=true` is rejected. |
+| `PHOTON_SEARCH_URL` | HTTPS Photon API endpoint for address/place search; defaults to the public Photon demo API. No user-supplied endpoint URLs are accepted. |
 | `UPLOAD_DIR` | Image storage directory; defaults to `.data/uploads`. Use persistent storage when deploying. |
 | `HOST` | Listen address; defaults to `127.0.0.1` in development and `0.0.0.0` in production. |
 | `PORT` | HTTP port; defaults to `1337`. |
@@ -100,6 +101,14 @@ At production startup, the app ensures unique username/email indexes and session
 This hardening does not guarantee that an account cannot be compromised. MFA/passkeys, email verification and a verified recovery flow, production monitoring, secret rotation, HTTPS configuration, and database access controls still need deployment-specific work. Bearer tokens remain accessible to frontend JavaScript/localStorage, so preventing frontend XSS is necessary; HttpOnly cookie authentication would require a separate cookie/CSRF integration. No live production MongoDB was available for this change: disk HTTP flows and mocked native Mongo operations are tested, but Mongo deployment/index creation must also be verified in staging.
 
 References: [OWASP authentication guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html), [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), and [JWT validation guidance](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_Cheat_Sheet.html).
+
+## Address and place search
+
+`POST /locations/search` accepts a JSON body `{ "query": "Central Park, New York" }` from a signed-in user and returns up to five `{ id, label, lat, lng }` results. The report form places the chosen point automatically; users can also use browser location or tap/drag a map pin. No coordinate entry is required. Reports store an optional human-readable label inside the existing location JSON alongside their numeric coordinates, so existing reports remain compatible.
+
+Search happens only after the user clicks **Find place** or presses Enter. Queries are sent to Photon; the form displays this notice and OpenStreetMap attribution. Requests go through the API with a five-second provider timeout, bounded responses, no redirects, a bounded 15-minute cache, and in-flight deduplication. Search is limited to 15 requests per user and 30 per client address in 15 minutes. Uncached provider requests share a 30-per-minute datastore budget across workers; each process also spaces provider request starts one second apart.
+
+The default [Photon demo service](https://github.com/komoot/photon#demo-server) permits moderate use and provides no availability guarantee. Configure `PHOTON_SEARCH_URL` for another compatible HTTPS Photon instance when more capacity is needed. No API key is required by the default service. If the provider is unavailable or a limit is reached, the user can still select a point on the map or use browser location.
 
 ## Dependency maintenance
 

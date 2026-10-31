@@ -55,10 +55,22 @@ function getTrustedProxies(env = process.env) {
   return [...new Set(proxies)];
 }
 
+function getPhotonSearchUrl(env = process.env) {
+  let url;
+  try { url = new URL(env.PHOTON_SEARCH_URL || 'https://photon.komoot.io/api/'); } catch {
+    throw new Error('PHOTON_SEARCH_URL must be a complete HTTPS Photon API URL.');
+  }
+  if (url.protocol !== 'https:' || url.username || url.password || url.hash) {
+    throw new Error('PHOTON_SEARCH_URL must be an HTTPS Photon API URL without credentials or a fragment.');
+  }
+  return url.href;
+}
+
 function initializeEnvironment(env = process.env) {
   getDatastoreConfig(env);
   getAllowedOrigins(env);
   getTrustedProxies(env);
+  getPhotonSearchUrl(env);
   const port = env.PORT === undefined ? 1337 : Number(env.PORT);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be a number between 1 and 65535.');
   if (!env.JWT_SECRET?.trim()) {
@@ -74,4 +86,4 @@ function initializeEnvironment(env = process.env) {
   return { port, host: env.HOST || (isProduction(env) ? '0.0.0.0' : '127.0.0.1') };
 }
 
-module.exports = { getDatastoreConfig, getAllowedOrigins, getTrustedProxies, initializeEnvironment };
+module.exports = { getDatastoreConfig, getAllowedOrigins, getTrustedProxies, getPhotonSearchUrl, initializeEnvironment };

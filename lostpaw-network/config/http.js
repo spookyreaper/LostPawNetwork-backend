@@ -39,7 +39,7 @@ module.exports.http = {
       return next();
     },
     requireAuthJson: function(req, res, next) {
-      const needsJson = (req.method === 'POST' && /^\/user\/(?:login|register|complete-profile)\/?$/i.test(req.path)) ||
+      const needsJson = (req.method === 'POST' && (/^\/user\/(?:login|register|complete-profile)\/?$/i.test(req.path) || /^\/locations\/search\/?$/i.test(req.path))) ||
         (['PUT', 'DELETE'].includes(req.method) && /^\/user\/[^/]+\/?$/i.test(req.path));
       if (needsJson && !req.is('application/json')) {
         return res.status(415).json({ message: 'Send authentication requests as application/json.' });

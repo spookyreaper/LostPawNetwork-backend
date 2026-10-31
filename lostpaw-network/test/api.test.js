@@ -34,7 +34,7 @@ function reportForm({ bytes = image, ...overrides } = {}) {
   const values = {
     petName: 'Nori', description: 'Integration test report', contactInfo: '555-0100',
     animalType: 'cat', breed: 'Mixed', color: 'Black', age: '0.5', status: 'lost', category: 'cat',
-    location: JSON.stringify({ lat: 0, lng: 0 }), userId: 'attacker-supplied-id', ...overrides,
+    location: JSON.stringify({ lat: 0, lng: 0, label: 'Test meeting point' }), userId: 'attacker-supplied-id', ...overrides,
   };
   for (const [key, value] of Object.entries(values)) form.append(key, value);
   form.append('petPhoto', new Blob([bytes], { type: 'image/png' }), 'nori.png');
@@ -124,6 +124,7 @@ test('report creation handles actual multipart uploads and derives ownership fro
   assert.equal(report.petName, 'Nori');
   assert.equal(report.latitude, 0);
   assert.equal(report.longitude, 0);
+  assert.equal(JSON.parse(report.location).label, 'Test meeting point');
   assert.match(report.photoUrls[0], /^\/images\/pets\/[a-f0-9]{24}\.png$/);
   const photo = await fetch(`${base}${report.photoUrls[0]}`);
   assert.equal(photo.status, 200);
